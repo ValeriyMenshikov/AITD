@@ -1,0 +1,12 @@
+COLOR= 1
+WARNING= [91m
+ACCEPTED= [92m
+ATTENTION= [93m
+REMOTE= 1
+FAR= %systemroot%\system32\mstsc.exe "C:\Users\vmenshikov\AppData\Roaming\Microsoft\Workspaces\{488B7205-052C-42ED-ACFF-074ED7E6B77E}\Resource\Far 3.exe (Remote Desktop Services Default Connection).rdp"
+PASSWORD= Mt-39325544
+DESTINATION_FOLDER_FOR_CHECK= \\pumba\BFT\—’≈ћџ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS
+DESTINATION_FOLDER_FOR_DISTR= \\pumba\BFT\—’≈ћџ\DISTRIB\57_DISTR_IBS
+DATABASE= ibs/ibs@ATM_SBDEV
+CHECK_CONTENT_REGEX= (ibsobj\d{0,2}?\.mdb)|(ibsobj\d{0,2}?\.pck)|(delete\d{0,2}?\.pck)|(»н.*€\sпо\sу.*е\.txt)|(ќ.*е\sо.*й\sк.*и\.xls[x]?)|(REPORT[S]?)|(SCRIPT[S]?)|(DATA)|(dr\.bat)|(.*r.*me\.txt)|(.*н.*е\sво.*ти.*\.doc[x]?)|(.*н.*е\sра.*€.*\.xls[x]?)|(.*кл.*€\sсп.*в.*\.xls[x]?)|([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)
+CHECK_SOURCE_FOLDER_PATH_REGEX= \\\\pumba\\bft\\—’≈ћџ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+
