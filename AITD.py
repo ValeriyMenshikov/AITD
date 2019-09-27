@@ -30,7 +30,7 @@ YELLOW = Fore.LIGHTYELLOW_EX
 RESET = Style.RESET_ALL
 
 TODAY = datetime.today().strftime('%Y_%m_%d')
-file = 'my_tuning1.txt'
+file = 'my_tuning.txt'
 
 
 # ====================================================TUNING==========================================================
@@ -79,13 +79,6 @@ def precondition():
             if FAR:
                 break
         while True:
-            print(f'{YELLOW}КАКАЯ ВЕРСИЯ WINDOWS? 7 / 10?: {RESET}')
-            WIN = str(input())
-            if WIN == '7':
-                break
-            elif WIN == '10':
-                break
-        while True:
             print(f'{YELLOW}ПАРОЛЬ К УЧЕТНОЙ ЗАПИСИ: {RESET}')
             PASSWORD = str(input())
             if PASSWORD:
@@ -97,7 +90,6 @@ def precondition():
                                  f'ATTENTION= {YELLOW}\n'
                                  f'REMOTE= {REMOTE}\n'
                                  f'FAR= {FAR}\n'
-                                 f'WIN= {WIN}\n'
                                  f'PASSWORD= {PASSWORD}\n'
                                  f'DESTINATION_FOLDER_FOR_CHECK= \\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\DISTRIB\\57_DISTR_IBS\n'
                                  f'DESTINATION_FOLDER_FOR_DISTR= \\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DISTR_IBS\n'
@@ -129,9 +121,7 @@ settings = precondition()
 
 def check_source_folder():
     report(InfoReports.INFO_ABOUT_PATH, color=YELLOW)
-    path_to_folder_regex = re.compile(settings['CHECK_SOURCE_FOLDER_PATH_REGEX'],
-        # r'\\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+',
-        re.IGNORECASE)
+    path_to_folder_regex = re.compile(settings['CHECK_SOURCE_FOLDER_PATH_REGEX'], re.IGNORECASE)
     while True:
         report(InfoReports.CHANGE_CATALOG, color=YELLOW)
         path_to_folder = input('')
@@ -223,23 +213,6 @@ def create_today_folder(destination_folder, source_folder):
 
 
 # ================================================WORK WITH FILES=======================================================
-
-# check_regex = re.compile(
-#         r'''(ibsobj\d{0,2}?\.mdb)|                                    # ibsobj.mdb
-#         (ibsobj\d{0,2}?\.pck)|                                        # ibsobj.pck
-#         (delete\d{0,2}?\.pck)|                                        # delete.pck
-#         (Ин.*я\sпо\sу.*е\.txt)|                                       # Инструкция по установке.txt
-#         (О.*е\sо.*й\sк.*и\.xls[x]?)|                                  # Описание операций конвертации.xls
-#         (REPORT[S]?)|                                                 # REPORTS
-#         (SCRIPT[S]?)|                                                 # SCRIPTS
-#         (DATA)|                                                       # DATA
-#         (dr\.bat)|                                                    # dr.bat
-#         (.*r.*me\.txt)|                                               # readme.txt
-#         (.*н.*е\sво.*ти.*\.doc[x]?)|                                  # Новые возможности.doc
-#         (.*н.*е\sра.*я.*\.xls[x]?)|                                   # Новые расширения.xls
-#         (.*кл.*я\sсп.*в.*\.xls[x]?)|                                  # Классификация справочников.xls
-#         ([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)      # del_old_reps_YYYYMMDD.bat
-#         ''', re.IGNORECASE | re.VERBOSE)
 
 check_regex = re.compile(settings['CHECK_CONTENT_REGEX'], re.IGNORECASE | re.VERBOSE)
 
@@ -341,22 +314,14 @@ def search_far_and_start(dst):
 
 
 def run_check_nsk(dst):
-    if settings['REMOTE'] == '1' and settings['WIN'] == '7':
+    if settings['REMOTE'] == '1':
         try:  # проверяем есть ли запущенный фар и отправляем команду на чек
             autoit.win_activate(r"[REGEXPTITLE: Far]")
             search_far_and_start(dst)
         except autoit.autoit.AutoItError:  # если нет, запускаем фар, авторизуемся и отправляем команду на пуск чекалки
             os.popen(settings['FAR'])
             autoit.win_wait_active("Безопасность Windows", 15)
-            autoit.control_send("Безопасность Windows", "Edit1", f"{settings['PASSWORD']}\n")  # Вводим пароль
-            search_far_and_start(dst)
-    elif settings['REMOTE'] == '1' and settings['WIN'] == '10':
-        try:
-            autoit.win_activate(r"[REGEXPTITLE: Far]")
-            search_far_and_start(dst)
-        except (autoit.autoit.AutoItError, TypeError):
-            os.popen(settings['FAR'])
-            autoit.win_wait_active("Безопасность Windows", 15)
+            time.sleep(1)
             keyboard.write(f"{settings['PASSWORD']}\n", delay=0)
             search_far_and_start(dst)
     else:  # Если комп не удаленный то блок с авторизацией отсутствует
@@ -552,8 +517,8 @@ def print_task_table(tasks):
         table.column_alignments['Название'] = beautifultable.ALIGN_LEFT
         table.column_alignments['Исполнитель'] = beautifultable.ALIGN_LEFT
         table.column_alignments['Статус'] = beautifultable.ALIGN_LEFT
-        table.column_widths['Исполнитель'] = 5
         table.width_exceed_policy = beautifultable.WEP_ELLIPSIS
+        table.max_table_width = 120
         table.set_style(beautifultable.STYLE_BOX_DOUBLED)
         print(table)
     else:
@@ -566,6 +531,7 @@ def print_description(about_task):
         table.column_headers = [f'{RED}ОПИСАНИЕ ПРОБЛЕМЫ:{Style.RESET_ALL}', f'{GREEN}РЕАЛИЗАЦИЯ:{Style.RESET_ALL}']
         for i in about_task:
             table.append_row(i)
+        table.max_table_width = 120
         table.set_style(beautifultable.STYLE_BOX_DOUBLED)
         print(table)
     except IndexError:
