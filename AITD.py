@@ -18,8 +18,8 @@ from InformationReports import report, InfoReports, Checks
 
 init()
 
-# hwnd = win32gui.GetForegroundWindow()
-# win32gui.MoveWindow(hwnd, 200, 200, 1010, 900, True)
+hwnd = win32gui.GetForegroundWindow()
+win32gui.MoveWindow(hwnd, 200, 200, 1010, 900, True)
 
 RED = Fore.LIGHTRED_EX
 GREEN = Fore.LIGHTGREEN_EX
@@ -316,8 +316,8 @@ def search_far_and_start(dst):
         pyperclip.copy(f'cd {dst}')  # Копируем путь к каталогу с скопированным содержимым
         keyboard.press_and_release('ctrl+v')  # Вставляем в активное окно и переходим в каталог
         keyboard.press_and_release('enter')
-        time.sleep(0.5)
-        # autoit.win_activate(r"[REGEXPTITLE: Far]")
+        # time.sleep(0.5)
+        autoit.win_activate(r"[REGEXPTITLE: Far]")
         pyperclip.copy('chk.exe')  # Копируем команду на пуск чекалки
         keyboard.press_and_release('ctrl+v')  # Вставляем и запускам
         keyboard.press_and_release('enter')
@@ -333,44 +333,33 @@ def search_far_and_start(dst):
             autoit.win_activate(r"[REGEXPTITLE: Far]")  # активировать окно перед запуском чекалки
             send_command_run()
         except autoit.autoit.AutoItError:
-            try:  # если окно не найдено, но возможно уже запущено, пробуем опять его найти по классу приложения
-                # В этом месте не очень надежно, потому что активирует любой терминал который был открыт последним
-                print('Ожидание FAR по классу приложения')
-                autoit.win_activate("[CLASS:ConsoleWindowClass]")
-                send_command_run()
-            except autoit.autoit.AutoItError:  # если окно не найдено даем рекомендацию на запуск в ручную
-                print('Активный FAR не найден')
-                print(f'{RED}ЗАПУСТИТЬ ЧЕКАЛКУ НЕ УДАЛОСЬ, ЗАПУСТИ В РУЧНУЮ.{RESET}')
-                print(f'{YELLOW}ПУТЬ К КАТАЛОГУ: {dst}')
-                print(f'{YELLOW}ДОЖДИСЬ ОКОНЧАНИЯ ПРОВЕРКИ И НАЖМИ ЛЮБУЮ КЛАВИШУ.{RESET}')
-                os.system("pause")
+            print('Активный FAR не найден')
+            print(f'{RED}ЗАПУСТИТЬ ЧЕКАЛКУ НЕ УДАЛОСЬ, ЗАПУСТИ В РУЧНУЮ.{RESET}')
+            print(f'{YELLOW}ПУТЬ К КАТАЛОГУ: {dst}')
+            print(f'{YELLOW}ДОЖДИСЬ ОКОНЧАНИЯ ПРОВЕРКИ И НАЖМИ ЛЮБУЮ КЛАВИШУ.{RESET}')
+            os.system("pause")
 
 
 def run_check_nsk(dst):
     if settings['REMOTE'] == '1' and settings['WIN'] == '7':
-        try:  # ожидаем окно авторизации удаленного рабочего стола
-            # TODO
+        try:  # проверяем есть ли запущенный фар и отправляем команду на чек
+            autoit.win_activate(r"[REGEXPTITLE: Far]")
+            search_far_and_start(dst)
+        except autoit.autoit.AutoItError:  # если нет, запускаем фар, авторизуемся и отправляем команду на пуск чекалки
             os.popen(settings['FAR'])
-            autoit.win_wait_active("Безопасность Windows", 15)  # TODO здесь можно сделать быстрее если фар запущен
+            autoit.win_wait_active("Безопасность Windows", 15)
             autoit.control_send("Безопасность Windows", "Edit1", f"{settings['PASSWORD']}\n")  # Вводим пароль
-            search_far_and_start(dst)  # Оправляем команду на пуск чекалки
-
-        except autoit.autoit.AutoItError:  # если окна авторизации нет, вероятно FAR уже запущен
             search_far_and_start(dst)
     elif settings['REMOTE'] == '1' and settings['WIN'] == '10':
-        try:  # ищем поле ввода пароля на WIN 10
-            os.popen(settings['FAR'])
-            autoit.win_wait_active("Безопасность Windows", 15)  # TODO здесь можно сделать быстрее если фар запущен
-            time.sleep(1)
-            password_field_location = pyautogui.locateOnScreen('password_field.png')
-            psswdx, psswdy = pyautogui.center(password_field_location)  # По картинке получаем координаты для клика
-            pyautogui.click(psswdx, psswdy)
-            time.sleep(1)
-            keyboard.write(f"{settings['PASSWORD']}\n", delay=0)  # Вводим пароль
-            search_far_and_start(dst)  # Отправляем команду на пуск чекалки
-        except (autoit.autoit.AutoItError, TypeError):  # если окна авторизации нет, вероятно FAR уже запущен
+        try:
+            autoit.win_activate(r"[REGEXPTITLE: Far]")
             search_far_and_start(dst)
-    else:  # Если комп не удаленный запускаем локальный FAR
+        except (autoit.autoit.AutoItError, TypeError):
+            os.popen(settings['FAR'])
+            autoit.win_wait_active("Безопасность Windows", 15)
+            keyboard.write(f"{settings['PASSWORD']}\n", delay=0)
+            search_far_and_start(dst)
+    else:  # Если комп не удаленный то блок с авторизацией отсутствует
         try:
             autoit.run(settings['FAR'])
             search_far_and_start(dst)
@@ -616,16 +605,21 @@ while True:
     first_check(Checks.CHECK1, Checks.CHECK2)
     check_catalog(check_regex, source_folder)
     easy_check(Checks.CHECK3)
-    task, about_task, defect_or_not = about_request(source_folder, database)
-    print_description(about_task)
-    easy_check(Checks.CHECK4)
-    if 'Дефект' in defect_or_not[0][0]:
+    try:  # Если доступ к базе есть выводим проверки в зависимости от данных из БД
+        task, about_task, defect_or_not = about_request(source_folder, database)
+        print_description(about_task)
+        easy_check(Checks.CHECK4)
+        if 'Дефект' in defect_or_not[0][0]:
+            easy_check(Checks.CHECK5)
+        else:
+            print(f'{YELLOW}ЗАЯВКА ИМЕЕТ ТИП "{str(defect_or_not[0][0]).upper()}"! АНАЛИЗ ПРИЧИН ДЕФЕКТОВ НЕ ДЕЛАЕМ!\n{RESET}')
+        if check_doc(task):
+            easy_check(Checks.CHECK6)
+        print_task_table(task)
+    except TypeError:  # Если доступа к базе нет, то выводим все проверки без данных из БД
+        easy_check(Checks.CHECK4)
         easy_check(Checks.CHECK5)
-    else:
-        print(f'{YELLOW}ЗАЯВКА ИМЕЕТ ТИП "{str(defect_or_not[0][0]).upper()}"! АНАЛИЗ ПРИЧИН ДЕФЕКТОВ НЕ ДЕЛАЕМ!\n{RESET}')
-    if check_doc(task):
         easy_check(Checks.CHECK6)
-    print_task_table(task)
     easy_check(Checks.CHECK7)
     easy_check(Checks.CHECK8)
     # Формируем destination каталог
