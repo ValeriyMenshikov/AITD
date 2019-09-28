@@ -143,11 +143,10 @@ def check_source_folder():
 
 
 def parsing_path_to_folder(path_to_folder):
-    number_name_developer = re.search(r'\d{2,3}_[a-zA-Z]+', os.path.basename(path_to_folder))
+    number_name_developer = re.search(r'(\d{2,3})_([a-zA-Z]+)', os.path.basename(path_to_folder))
     if number_name_developer:  # Если имя каталога содержит нужные составляеющие то разбиваем имя папки на части
-        number_name_developer = number_name_developer.group()
-        number_folder = re.search(r'\d{2}', number_name_developer).group()
-        name_dev = re.search(r'[a-zA-Z]+', number_name_developer).group()
+        number_folder = number_name_developer.group(1)
+        name_dev = number_name_developer.group(2)
         return number_folder, name_dev
     else:
         print(f'{RED}КАТАЛОГ {path_to_folder}\nНЕ СООТВЕТСТВУЕТ ФОРМАТУ NN_ФАМИЛИЯ РАЗРАБОТЧИКА!{RESET}')
