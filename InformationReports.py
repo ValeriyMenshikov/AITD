@@ -1,15 +1,20 @@
 from colorama import init
 from colorama import Fore, Style
+from read_settings import precondition
+
 
 init()
 
+settings = precondition()
 
-RED = Fore.LIGHTRED_EX
-GREEN = Fore.LIGHTGREEN_EX
-YELLOW = Fore.LIGHTYELLOW_EX
-# RED = Fore.RED
-# GREEN = Fore.GREEN
-# YELLOW = Fore.YELLOW
+if settings['COLOR'] == '1':
+    RED = Fore.LIGHTRED_EX
+    GREEN = Fore.LIGHTGREEN_EX
+    YELLOW = Fore.LIGHTYELLOW_EX
+else:
+    RED = Fore.RED
+    GREEN = Fore.GREEN
+    YELLOW = Fore.YELLOW
 RESET = Style.RESET_ALL
 
 
@@ -23,8 +28,6 @@ class InfoReports(object):
     CHECK_FOLDER_CONTENT = 'CHECK_FOLDER_CONTENT'
     FOLDER_CONTENT = 'FOLDER_CONTENT'
     DONT_TOUCH = 'DONT_TOUCH'
-    SETTING_INCORRECT = 'SETTING_INCORRECT'
-    PRECONDITION = 'PRECONDITION'
     ABOUT = 'ABOUT'
     INFO_ABOUT_PATH = 'INFO_ABOUT_PATH'
     PATH_NOT_CORRECT = 'PATH_NOT_CORRECT'
@@ -60,15 +63,6 @@ def report(name_report, name_folder='', color=RESET):
         print(f'''{color}НИЧЕГО НЕ ТРОГАЙ ДО ТЕХ ПОР,
 ПОКА ЧЕКАЛКА НЕ ЗАПУСТИТСЯ АВТОМАТИЧЕСКИ!{RESET}''')
 
-    elif name_report == 'SETTING_INCORRECT':
-        print(f'''{color}ПРЕДНАСТРОЙКА БЫЛА ВЫПОЛНЕНА НЕКОРРЕКТНО,
-ВОЗМОЖНО БЫЛИ ЗАПОЛНЕНЫ НЕ ВСЕ ПОЛЯ,
-ПЕРЕЗАПУСТИ ПРОГРАММУ{RESET}''')
-
-    elif name_report == 'PRECONDITION':
-        print(f'''{Fore.YELLOW}СЕЙЧАС БУДЕМ ПРОВОДИТЬ ПРЕДВАРИТЕЛЬНУЮ НАСТРОЙКУ,
-ВСЕГДА МОЖНО ИЗМЕНИТЬ В ФАЙЛЕ MY_TUNING.TXT{RESET}\n''')
-
     elif name_report == 'ABOUT':
         print(f'{color}ПРОГРАММА ДЛЯ ПОМОЩИ ПРИ ВЫКЛАДКЕ КАТАЛОГА.                                                             © Меньшиков В.С.{RESET}')
 
@@ -77,11 +71,11 @@ def report(name_report, name_folder='', color=RESET):
 ╔======================================================================================================================╗
 ║ {YELLOW}ДЛЯ СПРАВКИ:{RESET}                                                                                                         ║
 ║ {YELLOW}ПУТЬ К КАТАЛОГУ ДОЛЖЕН СТРОГО СООТВЕТСТВОВАТЬ ФОРМАТУ:{RESET}                                                               ║
-║ {RED}\\\\PUMBA\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\ГГГГ_ММ_ММ\\НОМЕР_ФАМИЛИЯ РАЗРАБОТЧИКА{RESET}                                      ║
+║ {RED}{settings['PATH_REQUIREMENTS']}{RESET}                                                   ║
 ║                                                                                                                      ║
 ║ {YELLOW}НАПРИМЕР:{RESET}                                                                                                            ║
 ║                                                                                                                      ║
-║ {RED}\\\\PUMBA\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\2019_08_14\\01_ivanov{RESET}                                                       ║
+║ {RED}{settings['PATH_EXAMPLE']}{RESET}                                                       ║
 ║                                                                                                                      ║
 ║ В ТАКОМ ФОРМАТЕ ПУТИ ХРАНЯТСЯ В ПРОТОКОЛЕ ТЕСТИРОВАНИЯ НА СТРАНИЦЕ {YELLOW}<<Информация>>{RESET}                                    ║
 ║ {YELLOW}ПОЭТОМУ СКОПИРУЙ ПУТЬ ИЗ ПРОТОКОЛА!{RESET}                                                                                  ║
@@ -95,6 +89,11 @@ def report(name_report, name_folder='', color=RESET):
 
 
 class Checks(object):
+    CHECK0 = f'''
+╔======================================================================================================================╗
+║{YELLOW}                                          ЕСТЬ ЗАВИСИМОСТЬ ОТ ДРУГИХ ЗАЯВОК?{RESET}                                          ║
+╚======================================================================================================================╝'''
+
     CHECK1 = f'''
 ╔======================================================================================================================╗
 ║{YELLOW}                                        РАЗРАБОТЧИК АКТУАЛИЗИРОВАЛ ХРАНИЛИЩЕ?{RESET}                                         ║
@@ -185,7 +184,7 @@ class Checks(object):
 ║ {YELLOW}ВНИМАНИЕ!{RESET}                                                                                                            ║
 ║    - ПАПКА С ВЫЛОЖЕННЫМ КАТАЛОГОМ ОТКРОЕТСЯ АВТОМАТИЧЕСКИ                                                            ║
 ║    - ПРОВЕРЬ ЕЩЕ РАЗ ГЛАЗАМИ СОДЕРЖИМОЕ ВЫЛОЖЕННОГО КАТАЛОГА                                                         ║
-║    - ЕСЛИ ПРИСУТСТВУЮТ ЛИШНИЕ ФАЙЛЫ И УДАЛИ В РУЧНУЮ!                                                                ║
+║    - ЕСЛИ ПРИСУТСТВУЮТ ЛИШНИЕ ФАЙЛЫ УДАЛИ В РУЧНУЮ!                                                                  ║
 ║ {YELLOW}НЕ ЗАБУДЬ ЗАКРЫТЬ ЗАДАЧУ "ВЫКЛАДКА КАТАЛОГА"{RESET}                                                                         ║
 ╚======================================================================================================================╝'''
 
