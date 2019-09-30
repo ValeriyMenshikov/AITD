@@ -14,6 +14,7 @@ import cx_Oracle
 from colorama import init
 from datetime import datetime
 from colorama import Fore, Style
+from read_settings import precondition
 from InformationReports import report, InfoReports, Checks
 
 init()
@@ -22,116 +23,31 @@ clear = lambda: os.system('cls')
 hwnd = win32gui.GetForegroundWindow()
 win32gui.MoveWindow(hwnd, 200, 200, 1010, 600, True)
 
-RED = Fore.LIGHTRED_EX
-GREEN = Fore.LIGHTGREEN_EX
-YELLOW = Fore.LIGHTYELLOW_EX
-# RED = Fore.RED
-# GREEN = Fore.GREEN
-# YELLOW = Fore.YELLOW
+settings = precondition()
+
+if settings['COLOR'] == '1':
+    RED = Fore.LIGHTRED_EX
+    GREEN = Fore.LIGHTGREEN_EX
+    YELLOW = Fore.LIGHTYELLOW_EX
+else:
+    RED = Fore.RED
+    GREEN = Fore.GREEN
+    YELLOW = Fore.YELLOW
 RESET = Style.RESET_ALL
 
 TODAY = datetime.today().strftime('%Y_%m_%d')
-file = 'my_tuning.txt'
-
-
-# ====================================================TUNING==========================================================
-
-
-# Чтение файла настроек
-def read_settings():
-    setting = {}
-    with open(file, 'r', encoding='windows-1251') as read_settings:
-        try:
-            for line in read_settings:
-                (key, value) = line.split('=')
-                setting[key] = value.strip()
-        except (ValueError, KeyError):
-            report(InfoReports.SETTING_INCORRECT, color=RED)
-            os.system("pause")
-            open(file, 'w')  # Таким образом зачищаем содержимое файла настроек
-    if setting == {}:
-        raise FileNotFoundError
-    return setting
-
-
-# Опрос и формирование файла настроек
-def precondition():
-    try:  # Пытаемся считать настройки если они есть
-        read_settings()
-    except FileNotFoundError:  # Если настроек нет Формируем файл конфигурации
-        report(InfoReports.PRECONDITION, YELLOW)
-        os.system("pause")
-        while True:
-            print(f'{YELLOW}ЯРКОСТЬ ТЕМНЕЕ, ЯРЧЕ? 1-ярче, 0-темнее: {RESET}')
-            COLOR = str(input())
-            if COLOR == '1':
-                break
-            elif COLOR == '0':
-                break
-            elif COLOR == '2':
-                break
-        while True:
-            print(f'{YELLOW}ЗАПУСКАЕШЬ FAR ЧЕРЕЗ ПЕРСЕЙ? 1-да, 0-нет: {RESET}')
-            REMOTE = str(input())
-            if REMOTE == '1':
-                break
-            elif REMOTE == '0':
-                break
-        while True:
-            print(f'{YELLOW}УКАЖИ ПУТЬ К FAR: {RESET}')
-            FAR = str(input())
-            if FAR:
-                break
-        while True:
-            print(f'{YELLOW}ПАРОЛЬ К УЧЕТНОЙ ЗАПИСИ: {RESET}')
-            PASSWORD = str(input())
-            if PASSWORD:
-                break
-        with open(file, 'w', encoding='windows-1251') as write_settings:
-            write_settings.write(
-                f'COLOR= {COLOR}\n'
-                f'WARNING= {RED}\n'
-                f'ACCEPTED= {GREEN}\n'
-                f'ATTENTION= {YELLOW}\n'
-                f'REMOTE= {REMOTE}\n'
-                f'FAR= {FAR}\n'
-                f'PASSWORD= {PASSWORD}\n'
-                r'DESTINATION_FOLDER_FOR_CHECK= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS'+'\n'
-                r'DESTINATION_FOLDER_FOR_DISTR= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DISTR_IBS'+'\n'
-                'DATABASE= ibs/ibs@ATM_SBDEV\n'
-                r'CHECK_CONTENT_REGEX= (ibsobj\d{0,2}?\.mdb)|'                    # ibsobj.mdb
-                r'(ibsobj\d{0,2}?\.pck)|'                                         # ibsobj.pck
-                r'(delete\d{0,2}?\.pck)|'                                         # delete.pck
-                r'(Ин.*я\sпо\sу.*е\.txt)|'                                        # Инструкция по установке.txt
-                r'(О.*е\sо.*й\sк.*и\.xls[x]?)|'                                   # Описание операций конвертации.xls
-                r'(REPORT[S]?)|'                                                  # REPORTS
-                r'(SCRIPT[S]?)|'                                                  # SCRIPTS
-                r'(DATA)|'                                                        # DATA
-                r'(dr\.bat)|'                                                     # dr.bat
-                r'(.*r.*me\.txt)|'                                                # readme.txt 
-                r'(.*н.*е\sво.*ти.*\.doc[x]?)|'                                   # Новые возможности.doc
-                r'(.*н.*е\sра.*я.*\.xls[x]?)|'                                    # Новые расширения.xls
-                r'(.*кл.*я\sсп.*в.*\.xls[x]?)|'                                   # Классификация справочников.xls
-                r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)'+'\n'  # del_old_reps_YYYYMMDD.bat
-                r'CHECK_SOURCE_FOLDER_PATH_REGEX= \\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+'
-                )
-    return read_settings()
-
-
-settings = precondition()
-
 
 # ===========================================WORK WITH FOLDERS===================================================
 
 
-# Проверка папки испточника
+# Проверка папки источника
 def check_source_folder():
     report(InfoReports.INFO_ABOUT_PATH, color=YELLOW)
     path_to_folder_regex = re.compile(settings['CHECK_SOURCE_FOLDER_PATH_REGEX'], re.IGNORECASE)
     while True:
         report(InfoReports.CHANGE_CATALOG, color=YELLOW)
         path_to_folder = input('')
-        if bool(path_to_folder_regex.search(path_to_folder)):  # Если путь соответствует формату пересохраняем его
+        if path_to_folder_regex.search(path_to_folder):  # Если путь соответствует формату пересохраняем его
             path_to_folder = path_to_folder_regex.search(path_to_folder).group()
             try:  # Проверяем существование каталога и содержит каталог файлы и папки или нет
                 if len(os.listdir(path_to_folder)) > 0:
@@ -235,7 +151,7 @@ def copy_files(source_folder, destination_folder, check_regex=re.compile('.*'), 
     for file in os.listdir(source_folder):  # Генерим пути к файлам и папкам в конечном каталоге
         srcfile = os.path.join(source_folder, file)
         dstfile = os.path.join(destination_folder, file)
-        if bool(check_regex.search(dstfile)):  # Проверяем файлы на соответствие regexp
+        if check_regex.search(dstfile):  # Проверяем файлы на соответствие regexp
             if os.path.isdir(srcfile):  # Если это папка то используем функцию для копирования папок
                 copy_files(srcfile, dstfile, check_regex)
                 print(f'Копируем {file}')
@@ -256,9 +172,9 @@ def check_catalog(check_regex, folder):
     ne_sootv = []
     for file in os.listdir(folder):  # Считываем содержимое папки
         dstfile = os.path.join(folder, file)
-        if bool(check_regex.search(dstfile)):  # Если соответствует regexp то пропускаем
+        if check_regex.search(dstfile):  # Если соответствует regexp то добавляем в массив соответствующих
             sootv.append(f'{GREEN}{file}{RESET}')
-        else:  # Если не соответствует выводим предупреждение
+        else:  # Если нет то добавляем в массив не соответствующих
             ne_sootv.append(f'{RED}{file}{RESET}')
             match = False
     print(f'{GREEN}СООТВЕТСТВУЮТ ДЛЯ ВЫКЛАДКИ:{RESET}')
@@ -283,7 +199,7 @@ def check_catalog(check_regex, folder):
 def delete_trash(check_regex, folder):
     for file in os.listdir(folder):   # Считываем содержимое
         dstfile = os.path.join(folder, file)
-        if not bool(check_regex.search(dstfile)):  # Если не соответствует regexp удаляем
+        if not check_regex.search(dstfile):  # Если не соответствует regexp удаляем
             if os.path.isdir(dstfile):
                 shutil.rmtree(dstfile)
                 print(f'{RED}Удалена папка: {file}')
@@ -315,7 +231,7 @@ def search_far_and_start(dst):
     except autoit.autoit.AutoItError:
         try:  # если окно не найдено, ждем 20 сек пока оно запустится
             print('Ожидание FAR по заголовку')
-            autoit.win_wait_active(r"[REGEXPTITLE: Far]", 20)
+            autoit.win_wait_active(r"[REGEXPTITLE: Far]", 30)
             autoit.win_activate(r"[REGEXPTITLE: Far]")  # активировать окно перед запуском чекалки
             send_command_run()
         except autoit.autoit.AutoItError:
@@ -334,7 +250,7 @@ def run_check_nsk(dst):
             search_far_and_start(dst)
         except autoit.autoit.AutoItError:  # если нет, запускаем фар, авторизуемся и отправляем команду на пуск чекалки
             os.popen(settings['FAR'])
-            autoit.win_wait_active("Безопасность Windows", 15)
+            autoit.win_wait_active("Безопасность Windows", 30)
             time.sleep(1)
             keyboard.write(f"{settings['PASSWORD']}\n", delay=0)
             search_far_and_start(dst)
@@ -383,7 +299,7 @@ def first_check(msg1, msg2):
     while True:
         print(msg1)
         check = input('Y\\N: ')
-        if check == 'N' or check == 'n' or check == 'т' or check == 'Т':
+        if check in ['N', 'n', 'Т', 'т']:
             print(RED + 'ИСПРАВЬ ЗАМЕЧАНИЯ И ПОПРОБУЙ СНОВА!'.center(120, ' ') + RESET)
             continue
         else:
@@ -398,7 +314,7 @@ def easy_check(msg):
     while True:
         print(msg)
         check = input('Y\\N: ')
-        if check == 'N' or check == 'n' or check == 'т' or check == 'Т':
+        if check in ['N', 'n', 'Т', 'т']:
             print(RED + 'ИСПРАВЬ ЗАМЕЧАНИЯ И ПОПРОБУЙ СНОВА!'.center(120, ' ') + RESET)
             continue
         else:
@@ -411,10 +327,10 @@ def check_with_checker(msg, check_regex, source_folder, destination_folder):
     while True:
         print(msg)
         check = input('Y\\N: ')
-        if check == 'N' or check == 'n' or check == 'т' or check == 'Т':
+        if check in ['N', 'n', 'Т', 'т']:
             print(f'{YELLOW}СКОПИРОВАТЬ КАТАЛОГ ПОВТОРНО?{RESET}')
             yesno = input('Y\\N: ')
-            if yesno == 'N' or yesno == 'n' or yesno == 'т' or yesno == 'Т':
+            if yesno in ['N', 'n', 'Т', 'т']:
                 continue
             else:
                 delete_trash(check_regex, destination_folder)  # Удаляем старый лог и лишние файлы
@@ -439,7 +355,7 @@ def copy_all_or_not(source_folder, destination_folder, check_regex, print_report
         report(InfoReports.COPY_FOLDER, source_folder, color=YELLOW)
     else:
         pass
-    if all_not == 'N' or all_not == 'n' or all_not == 'т' or all_not == 'Т':
+    if all_not in ['N', 'n', 'Т', 'т']:
         print('Копируем все файлы: ')
         copy_files(source_folder, destination_folder)
     else:
@@ -455,7 +371,7 @@ def about_request(source_folder, database):
     RP = ''
     regex = re.compile(r'ibsobj\d{0,2}?\.pck')
     for file in os.listdir(source_folder):
-        if bool(regex.search(file)):
+        if regex.search(file):
             src = os.path.join(source_folder, file)
             break
         else:
@@ -464,7 +380,7 @@ def about_request(source_folder, database):
         with open(src) as pck:
             for line in pck:
                 try:
-                    RP = re.compile(r'RP\d{7}').search(line).group()
+                    RP = re.compile(settings['NUMBER_REQUEST_REGEX']).search(line).group()
                     break
                 except AttributeError:
                     pass
@@ -590,14 +506,20 @@ database = settings['DATABASE']
 destination_folder = settings['DESTINATION_FOLDER_FOR_CHECK']
 destination_folder_distr = settings['DESTINATION_FOLDER_FOR_DISTR']
 
+# TODO Основной цикл
+
 while True:
     # Предварительная настройка
     precondition()
     report(InfoReports.ABOUT, color=YELLOW)
+
     # Проверка пути на соответствие формату
     source_folder = check_source_folder()
     clear()
+
     # Блок проверок
+    easy_check(Checks.CHECK0)
+    clear()
     easy_check(Checks.CHECK1)
     clear()
     print(Checks.CHECK2)
@@ -628,22 +550,28 @@ while True:
     clear()
     easy_check(Checks.CHECK8)
     clear()
+
     # Формируем destination каталог
     dst = create_today_folder(destination_folder, source_folder)
     copy_all_or_not(source_folder, dst, check_regex, 1)
+
     # Копирование файлов и просмотр того что скопировали
     print(f'{GREEN}ФАЙЛЫ УСПЕШНО СКОПИРОВАНЫ!{RESET}')
     show_folder_contents(dst)
+
     # Запуск чекалки и ожидание ее лога
     run_check_nsk(dst)
     waiting_checker_log(dst)
+
     # Проверка с возможностью скопировать каталог заново
     check_with_checker(Checks.CHECK10, check_regex, source_folder, dst)
     clear()
+
     # Формируем destination каталог на дистре и копируем файлы
     dst_distr = create_today_folder(destination_folder_distr, source_folder)
     copy_all_or_not(source_folder, dst_distr, check_regex, 0)
     print(f'{GREEN}ФАЙЛЫ УСПЕШНО СКОПИРОВАНЫ!{RESET}\n')
+
     # Все операции закончены открываем итоговый каталог
     print(Checks.CONGRATULATION)
     time.sleep(3)
@@ -651,7 +579,7 @@ while True:
     print('ДЛЯ ВЫКЛАДКИ СДЕЛУЮЩЕГО КАТАЛОГА НАЖМИ ЛЮБУЮ КЛАВИШУ')
     print('ДЛЯ ВЫХОДА НАЖМИ "N"')
     next = input('Y\\N:')
-    if next == 'N' or next == 'n' or next == 'Т' or next == 'т':
+    if next in ['N', 'n', 'Т', 'т']:
         break
     else:
         clear()
