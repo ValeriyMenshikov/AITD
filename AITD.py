@@ -20,7 +20,7 @@ init()
 
 clear = lambda: os.system('cls')
 hwnd = win32gui.GetForegroundWindow()
-win32gui.MoveWindow(hwnd, 200, 200, 1010, 900, True)
+win32gui.MoveWindow(hwnd, 200, 200, 1010, 600, True)
 
 RED = Fore.LIGHTRED_EX
 GREEN = Fore.LIGHTGREEN_EX
@@ -36,6 +36,8 @@ file = 'my_tuning.txt'
 
 # ====================================================TUNING==========================================================
 
+
+# Чтение файла настроек
 def read_settings():
     setting = {}
     with open(file, 'r', encoding='windows-1251') as read_settings:
@@ -52,6 +54,7 @@ def read_settings():
     return setting
 
 
+# Опрос и формирование файла настроек
 def precondition():
     try:  # Пытаемся считать настройки если они есть
         read_settings()
@@ -85,32 +88,33 @@ def precondition():
             if PASSWORD:
                 break
         with open(file, 'w', encoding='windows-1251') as write_settings:
-            write_settings.write(f'COLOR= {COLOR}\n'
-                                 f'WARNING= {RED}\n'
-                                 f'ACCEPTED= {GREEN}\n'
-                                 f'ATTENTION= {YELLOW}\n'
-                                 f'REMOTE= {REMOTE}\n'
-                                 f'FAR= {FAR}\n'
-                                 f'PASSWORD= {PASSWORD}\n'
-                                 f'DESTINATION_FOLDER_FOR_CHECK= \\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\DISTRIB\\57_DISTR_IBS\n'
-                                 f'DESTINATION_FOLDER_FOR_DISTR= \\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DISTR_IBS\n'
-                                 f'DATABASE= ibs/ibs@ATM_SBDEV\n'
-                                 r'CHECK_CONTENT_REGEX= (ibsobj\d{0,2}?\.mdb)|'                                         # ibsobj.mdb
-                                                      r'(ibsobj\d{0,2}?\.pck)|'                                         # ibsobj.pck
-                                                      r'(delete\d{0,2}?\.pck)|'                                         # delete.pck
-                                                      r'(Ин.*я\sпо\sу.*е\.txt)|'                                        # Инструкция по установке.txt
-                                                      r'(О.*е\sо.*й\sк.*и\.xls[x]?)|'                                   # Описание операций конвертации.xls
-                                                      r'(REPORT[S]?)|'                                                  # REPORTS
-                                                      r'(SCRIPT[S]?)|'                                                  # SCRIPTS
-                                                      r'(DATA)|'                                                        # DATA
-                                                      r'(dr\.bat)|'                                                     # dr.bat
-                                                      r'(.*r.*me\.txt)|'                                                # readme.txt 
-                                                      r'(.*н.*е\sво.*ти.*\.doc[x]?)|'                                   # Новые возможности.doc
-                                                      r'(.*н.*е\sра.*я.*\.xls[x]?)|'                                    # Новые расширения.xls
-                                                      r'(.*кл.*я\sсп.*в.*\.xls[x]?)|'                                   # Классификация справочников.xls
-                                                      r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)'+'\n'  # del_old_reps_YYYYMMDD.bat
-                                 r'CHECK_SOURCE_FOLDER_PATH_REGEX= \\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+'
-                                 )
+            write_settings.write(
+                f'COLOR= {COLOR}\n'
+                f'WARNING= {RED}\n'
+                f'ACCEPTED= {GREEN}\n'
+                f'ATTENTION= {YELLOW}\n'
+                f'REMOTE= {REMOTE}\n'
+                f'FAR= {FAR}\n'
+                f'PASSWORD= {PASSWORD}\n'
+                r'DESTINATION_FOLDER_FOR_CHECK= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS'+'\n'
+                r'DESTINATION_FOLDER_FOR_DISTR= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DISTR_IBS'+'\n'
+                'DATABASE= ibs/ibs@ATM_SBDEV\n'
+                r'CHECK_CONTENT_REGEX= (ibsobj\d{0,2}?\.mdb)|'                    # ibsobj.mdb
+                r'(ibsobj\d{0,2}?\.pck)|'                                         # ibsobj.pck
+                r'(delete\d{0,2}?\.pck)|'                                         # delete.pck
+                r'(Ин.*я\sпо\sу.*е\.txt)|'                                        # Инструкция по установке.txt
+                r'(О.*е\sо.*й\sк.*и\.xls[x]?)|'                                   # Описание операций конвертации.xls
+                r'(REPORT[S]?)|'                                                  # REPORTS
+                r'(SCRIPT[S]?)|'                                                  # SCRIPTS
+                r'(DATA)|'                                                        # DATA
+                r'(dr\.bat)|'                                                     # dr.bat
+                r'(.*r.*me\.txt)|'                                                # readme.txt 
+                r'(.*н.*е\sво.*ти.*\.doc[x]?)|'                                   # Новые возможности.doc
+                r'(.*н.*е\sра.*я.*\.xls[x]?)|'                                    # Новые расширения.xls
+                r'(.*кл.*я\sсп.*в.*\.xls[x]?)|'                                   # Классификация справочников.xls
+                r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)'+'\n'  # del_old_reps_YYYYMMDD.bat
+                r'CHECK_SOURCE_FOLDER_PATH_REGEX= \\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+'
+                )
     return read_settings()
 
 
@@ -120,6 +124,7 @@ settings = precondition()
 # ===========================================WORK WITH FOLDERS===================================================
 
 
+# Проверка папки испточника
 def check_source_folder():
     report(InfoReports.INFO_ABOUT_PATH, color=YELLOW)
     path_to_folder_regex = re.compile(settings['CHECK_SOURCE_FOLDER_PATH_REGEX'], re.IGNORECASE)
@@ -142,6 +147,7 @@ def check_source_folder():
     return path_to_folder
 
 
+# Получение номера и имени разработчика в указанной папке
 def parsing_path_to_folder(path_to_folder):
     number_name_developer = re.search(r'(\d{2,3})_([a-zA-Z]+)', os.path.basename(path_to_folder))
     if number_name_developer:  # Если имя каталога содержит нужные составляеющие то разбиваем имя папки на части
@@ -152,6 +158,7 @@ def parsing_path_to_folder(path_to_folder):
         print(f'{RED}КАТАЛОГ {path_to_folder}\nНЕ СООТВЕТСТВУЕТ ФОРМАТУ NN_ФАМИЛИЯ РАЗРАБОТЧИКА!{RESET}')
 
 
+# Отобразить содержимое каталога
 def show_folder_contents(name_folder):
     report(InfoReports.FOLDER_CONTENT, name_folder, color=YELLOW)
     print('╔'+''.center(118, '=') + '╗')
@@ -162,6 +169,7 @@ def show_folder_contents(name_folder):
     return links_to_folder_contents
 
 
+# Создать папку назначения
 def create_destination_folder(destination_folder, source_folder):
     links = show_folder_contents(destination_folder)  # Считываем содержимое каталога
     if len(links) == 0:  # Если каталог пуст то создаем папку с номером 01_имя разработчика
@@ -197,6 +205,7 @@ def create_destination_folder(destination_folder, source_folder):
     return destination_folder
 
 
+# Создать папку с текущей датой
 def create_today_folder(destination_folder, source_folder):
     destination_folder = f'{destination_folder}\\{TODAY}'
     if os.path.isdir(destination_folder):  # Проверяем наличие каталога с текущей датой и генерим конечный каталог
@@ -217,6 +226,7 @@ def create_today_folder(destination_folder, source_folder):
 check_regex = re.compile(settings['CHECK_CONTENT_REGEX'], re.IGNORECASE | re.VERBOSE)
 
 
+# Выборочное копирование файлов из одной папки в другую в соответствием с регулярным выражением
 def copy_files(source_folder, destination_folder, check_regex=re.compile('.*'), include_directory=False):
     if include_directory:
         destination_folder = os.path.join(destination_folder, os.path.basename(source_folder))
@@ -237,6 +247,7 @@ def copy_files(source_folder, destination_folder, check_regex=re.compile('.*'), 
             # print(f'Файл {file} не соответствует требованиям ОПД')
 
 
+# Проверка содержимого каталога на соответсвие регулярному выражению
 def check_catalog(check_regex, folder):
     print(f'{YELLOW}АВТОМАТИЧЕСКАЯ ПРОВЕРКА КАТАЛОГА {folder}!{RESET}')
     # print(''.center(120, '='))
@@ -268,6 +279,7 @@ def check_catalog(check_regex, folder):
         return False
 
 
+# Удаление файлов не соответствующих регулярному выражению
 def delete_trash(check_regex, folder):
     for file in os.listdir(folder):   # Считываем содержимое
         dstfile = os.path.join(folder, file)
@@ -284,6 +296,7 @@ def delete_trash(check_regex, folder):
 # ==============================================WORK WITH FAR(CHECKER)==================================================
 
 
+# Активация окна с фаром и отправка команды на запуск чекалки
 def search_far_and_start(dst):
     def send_command_run():
         pyperclip.copy(f'cd {dst}')  # Копируем путь к каталогу с скопированным содержимым
@@ -313,6 +326,7 @@ def search_far_and_start(dst):
             os.system("pause")
 
 
+# Запуск чекалки
 def run_check_nsk(dst):
     if settings['REMOTE'] == '1':
         try:  # проверяем есть ли запущенный фар и отправляем команду на чек
@@ -332,12 +346,14 @@ def run_check_nsk(dst):
             print('ПРОВЕРЬ НАСТРОЙКИ ВОЗМОЖНО НЕПРАВИЛЬНО УКАЗАН ПУТЬ К FAR')
 
 
+# Ожидание формирования лога чекалки и его вывод
 def waiting_checker_log(address_where_log):
     address_for_waiting_log = address_where_log + '\\ChkInfo.xml'
     address_where_log = address_where_log + '\\chkerr.log'
     log_not_ready = True
+    timer = 0
     while log_not_ready:  # Таймер принудительного выхода из цикла если не дождались лога
-        if time.clock() >= 300:
+        if timer >= 300:
             print(f'{RED}Лог проверки не сформирован проверьте работоспособность чекалки!{RESET}')
             break
         try:
@@ -356,11 +372,13 @@ def waiting_checker_log(address_where_log):
                 print(f'{RED}Нет доступа к логу, проверь, возможно он открыт в другой программе!{RESET}')
         except (FileNotFoundError, PermissionError):  # Если файл не удается открыть ждем секунду
             time.sleep(1)
+            timer += 1
             continue
 
 # =====================================================CHECKS======================================================
 
 
+# Первая проверка
 def first_check(msg1, msg2):
     while True:
         print(msg1)
@@ -375,6 +393,7 @@ def first_check(msg1, msg2):
             break
 
 
+# Простая проверка в зависимости от сообщения
 def easy_check(msg):
     while True:
         print(msg)
@@ -387,6 +406,7 @@ def easy_check(msg):
             break
 
 
+# Проверка с копированием и повторным запуском чекалки
 def check_with_checker(msg, check_regex, source_folder, destination_folder):
     while True:
         print(msg)
@@ -410,6 +430,7 @@ def check_with_checker(msg, check_regex, source_folder, destination_folder):
             break
 
 
+# Копируем все содержимое или в соответсвтвии с регулярным выражением
 def copy_all_or_not(source_folder, destination_folder, check_regex, print_report=0):
     print(Checks.CHECK9)
     all_not = str(input('Y\\N: '))
@@ -429,6 +450,7 @@ def copy_all_or_not(source_folder, destination_folder, check_regex, print_report
 # =============================================WORK WITH DATABASE======================================================
 
 
+# Поиск в файле pck номера заявки, и запросы к БД в соответсвии с номером заявки
 def about_request(source_folder, database):
     RP = ''
     regex = re.compile(r'ibsobj\d{0,2}?\.pck')
@@ -512,6 +534,7 @@ def about_request(source_folder, database):
     return sql_query()
 
 
+# Вывод задач по заявке в соответствии с запросом полученным в sql_query()
 def print_task_table(tasks):
     if len(tasks) > 0:
         table = beautifultable.BeautifulTable()
@@ -529,6 +552,7 @@ def print_task_table(tasks):
         print(f"{RED}НЕ УДАЛОСЬ ПОЛУЧИТЬ ИНФОРМАЦИЮ ПО ЗАЯВКЕ{RESET}")
 
 
+# Вывод public info по заявке в соответствии с запросом полученным в sql_query()
 def print_description(about_task):
     try:
         table = beautifultable.BeautifulTable()
@@ -542,6 +566,7 @@ def print_description(about_task):
         print(f'{RED}НЕ УДАЛОСЬ ПОЛУЧИТЬ ИНФОРМАЦИЮ ПО ЗАЯВКЕ!{RESET}')
 
 
+# Проверка есть ли в заявке задача документрирование
 def check_doc(task):
     doc = False
     for i in task:
@@ -571,27 +596,38 @@ while True:
     report(InfoReports.ABOUT, color=YELLOW)
     # Проверка пути на соответствие формату
     source_folder = check_source_folder()
+    clear()
     # Блок проверок
-    first_check(Checks.CHECK1, Checks.CHECK2)
+    easy_check(Checks.CHECK1)
+    clear()
+    print(Checks.CHECK2)
     check_catalog(check_regex, source_folder)
     easy_check(Checks.CHECK3)
     try:  # Если доступ к базе есть выводим проверки в зависимости от данных из БД
         task, about_task, defect_or_not = about_request(source_folder, database)
+        clear()
         print_description(about_task)
         easy_check(Checks.CHECK4)
         if 'Дефект' in defect_or_not[0][0]:
+            clear()
             easy_check(Checks.CHECK5)
         else:
             print(f'{YELLOW}ЗАЯВКА ИМЕЕТ ТИП "{str(defect_or_not[0][0]).upper()}"! АНАЛИЗ ПРИЧИН ДЕФЕКТОВ НЕ ДЕЛАЕМ!\n{RESET}')
         if check_doc(task):
+            clear()
             easy_check(Checks.CHECK6)
+        clear()
         print_task_table(task)
     except TypeError:  # Если доступа к базе нет, то выводим все проверки без данных из БД
         easy_check(Checks.CHECK4)
+        clear()
         easy_check(Checks.CHECK5)
+        clear()
         easy_check(Checks.CHECK6)
     easy_check(Checks.CHECK7)
+    clear()
     easy_check(Checks.CHECK8)
+    clear()
     # Формируем destination каталог
     dst = create_today_folder(destination_folder, source_folder)
     copy_all_or_not(source_folder, dst, check_regex, 1)
@@ -603,6 +639,7 @@ while True:
     waiting_checker_log(dst)
     # Проверка с возможностью скопировать каталог заново
     check_with_checker(Checks.CHECK10, check_regex, source_folder, dst)
+    clear()
     # Формируем destination каталог на дистре и копируем файлы
     dst_distr = create_today_folder(destination_folder_distr, source_folder)
     copy_all_or_not(source_folder, dst_distr, check_regex, 0)
