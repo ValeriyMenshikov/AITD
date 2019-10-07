@@ -166,28 +166,27 @@ def copy_files(source_folder, destination_folder, check_regex=re.compile('.*'), 
 # Проверка содержимого каталога на соответсвие регулярному выражению
 def check_catalog(check_regex, folder):
     print(f'{YELLOW}АВТОМАТИЧЕСКАЯ ПРОВЕРКА КАТАЛОГА {folder}!{RESET}')
-    # print(''.center(120, '='))
-    match = True
-    sootv = []
-    ne_sootv = []
+    match_flag = True
+    match = []
+    dont_match = []
     for file in os.listdir(folder):  # Считываем содержимое папки
         dstfile = os.path.join(folder, file)
         if check_regex.search(dstfile):  # Если соответствует regexp то добавляем в массив соответствующих
-            sootv.append(f'{GREEN}{file}{RESET}')
+            match.append(f'{GREEN}{file}{RESET}')
         else:  # Если нет то добавляем в массив не соответствующих
-            ne_sootv.append(f'{RED}{file}{RESET}')
-            match = False
+            dont_match.append(f'{RED}{file}{RESET}')
+            match_flag = False
     print(f'{GREEN}СООТВЕТСТВУЮТ ДЛЯ ВЫКЛАДКИ:{RESET}')
     print('╔' + ''.center(118, '=') + '╗')
-    for i in sootv:
+    for i in match:
         print('║ ' + i.ljust(126, '.') + '║')
     print('╚' + ''.center(118, '=') + '╝')
     print(f'\n{RED}НЕ СООТВЕТСТВУЮТ ДЛЯ ВЫКЛАДКИ:{RESET}')
     print('╔' + ''.center(118, '=') + '╗')
-    for j in ne_sootv:
+    for j in dont_match:
         print('║ ' + j.ljust(126, '.') + '║')
     print('╚' + ''.center(118, '=') + '╝')
-    if match:
+    if match_flag:
         print(f'{GREEN}СОДЕРЖИМОЕ КАТАЛОГА СООТВЕТСТВУЕТ ТРЕБОВАНИЯМ ВЫКЛАДКИ')
         return True
     else:
@@ -243,7 +242,7 @@ def search_far_and_start(dst):
 
 
 # Запуск чекалки
-def run_check_nsk(dst):
+def run_check(dst):
     if settings['REMOTE'] == '1':
         try:  # проверяем есть ли запущенный фар и отправляем команду на чек
             autoit.win_activate(r"[REGEXPTITLE: Far]")
@@ -374,8 +373,6 @@ def about_request(source_folder, database):
         if regex.search(file):
             src = os.path.join(source_folder, file)
             break
-        else:
-            continue
     try:
         with open(src) as pck:
             for line in pck:
@@ -452,6 +449,7 @@ def about_request(source_folder, database):
 
 # Вывод задач по заявке в соответствии с запросом полученным в sql_query()
 def print_task_table(tasks):
+    print(f'{YELLOW}ВНИМАНИЕ, СПИСОК ЗАДАЧ ВЫГРУЖЕН ЗА ВЧЕРАШНИЙ ДЕНЬ!{RESET}')
     if len(tasks) > 0:
         table = beautifultable.BeautifulTable()
         table.column_headers = ['Приоритет', 'Задача', 'Название', 'Исполнитель', 'Статус']
@@ -470,6 +468,7 @@ def print_task_table(tasks):
 
 # Вывод public info по заявке в соответствии с запросом полученным в sql_query()
 def print_description(about_task):
+    print(f'{YELLOW}ВНИМАНИЕ, ОПИСАНИЕ ЗАЯВКИ ДАТИРОВАНО ВЧЕРАШНИМ ДНЕМ!{RESET}')
     try:
         table = beautifultable.BeautifulTable()
         table.column_headers = [f'{RED}ОПИСАНИЕ ПРОБЛЕМЫ:{Style.RESET_ALL}', f'{GREEN}РЕАЛИЗАЦИЯ:{Style.RESET_ALL}']
@@ -489,12 +488,7 @@ def check_doc(task):
         if 'Документирование' in i:
             doc = True
             break
-        else:
-            pass
-    if doc:
-        pass
-        # print(f'{YELLOW}В ЗАЯВКЕ ОБНАРУЖЕНА ЗАДАЧА "ДОКУМЕНТИРОВАНИЕ"!{RESET}')
-    else:
+    if not doc:
         print(f'{YELLOW}В ЗАЯВКЕ НЕ ОБНАРУЖЕНА ЗАДАЧА "ДОКУМЕНТИРОВАНИЕ"!{RESET}')
         print(f'{YELLOW}ЗНАЧИТ ИЗМЕНЕНИЙ В ДОКУМЕНТАЦИИ НЕ БЫЛО!\n{RESET}')
     return doc
@@ -518,7 +512,7 @@ while True:
     clear()
 
     # Блок проверок
-    easy_check(Checks.CHECK0)
+    # easy_check(Checks.CHECK0)
     clear()
     easy_check(Checks.CHECK1)
     clear()
@@ -529,19 +523,19 @@ while True:
         task, about_task, defect_or_not = about_request(source_folder, database)
         clear()
         print_description(about_task)
-        easy_check(Checks.CHECK4)
         if 'Дефект' in defect_or_not[0][0]:
+            easy_check(Checks.CHECK4_defect)
             clear()
             easy_check(Checks.CHECK5)
         else:
-            print(f'{YELLOW}ЗАЯВКА ИМЕЕТ ТИП "{str(defect_or_not[0][0]).upper()}"! АНАЛИЗ ПРИЧИН ДЕФЕКТОВ НЕ ДЕЛАЕМ!\n{RESET}')
+            easy_check(Checks.CHECK4_rework)
         if check_doc(task):
             clear()
             easy_check(Checks.CHECK6)
         clear()
         print_task_table(task)
     except TypeError:  # Если доступа к базе нет, то выводим все проверки без данных из БД
-        easy_check(Checks.CHECK4)
+        easy_check(Checks.CHECK4_rework)
         clear()
         easy_check(Checks.CHECK5)
         clear()
@@ -560,7 +554,7 @@ while True:
     show_folder_contents(dst)
 
     # Запуск чекалки и ожидание ее лога
-    run_check_nsk(dst)
+    run_check(dst)
     waiting_checker_log(dst)
 
     # Проверка с возможностью скопировать каталог заново
