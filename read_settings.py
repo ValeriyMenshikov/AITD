@@ -1,6 +1,7 @@
 import os
 from colorama import init
 from colorama import Fore, Style
+import json
 
 init()
 
@@ -9,80 +10,132 @@ GREEN = Fore.LIGHTGREEN_EX
 YELLOW = Fore.LIGHTYELLOW_EX
 RESET = Style.RESET_ALL
 
-file = 'my_tuning.txt'
+file = 'my_tuning.json'
 
 
-# Чтение файла настроек
-def read_settings():
-    setting = {}
-    with open(file, 'r', encoding='windows-1251') as read_settings:
-        try:
-            for line in read_settings:
-                (key, value) = line.split('=')
-                setting[key] = value.strip()
-        except (ValueError, KeyError):
-            print(f'''{RED}ПРЕДНАСТРОЙКА БЫЛА ВЫПОЛНЕНА НЕКОРРЕКТНО,
-ВОЗМОЖНО БЫЛИ ЗАПОЛНЕНЫ НЕ ВСЕ ПОЛЯ, ПЕРЕЗАПУСТИ ПРОГРАММУ{RESET}''')
-            open(file, 'w')  # Таким образом зачищаем содержимое файла настроек
-    if setting == {}:
-        raise FileNotFoundError
-    return setting
+def read_settings(file):
+    while True:
+        if os.path.isfile(file):
+            with open(file) as set:
+                return json.load(set)
+        else:
+            print(f'''{YELLOW}СЕЙЧАС БУДЕМ ПРОВОДИТЬ ПРЕДВАРИТЕЛЬНУЮ НАСТРОЙКУ,
+            НАСТРОЙКИ ВСЕГДА МОЖНО ИЗМЕНИТЬ В ФАЙЛЕ MY_TUNING.JSON{RESET}\n''')
+            os.system("pause")
+            while True:
+                print(f'{YELLOW}ЯРКОСТЬ 1-без изменений, 0-темнее: {RESET}')
+                color = str(input())
+                if color == '1' or color == '0':
+                    break
+                else:
+                    print(f'{RED}Значение должно быть равно 0 или 1!{RESET}')
+            while True:
+                print(f'{YELLOW}ЗАПУСКАЕШЬ far ЧЕРЕЗ ПЕРСЕЙ? 1-да, 0-нет: {RESET}')
+                remote = str(input())
+                if remote == '1' or remote == '0':
+                    break
+                else:
+                    print(f'{RED}Значение должно быть равно 0 или 1!{RESET}')
+            while True:
+                print(f'{YELLOW}ПАРОЛЬ К УЧЕТНОЙ ЗАПИСИ: {RESET}')
+                password = str(input())
+                if password:
+                    break
+                else:
+                    print(f'{RED}Пароль к учетной записи не указан!{RESET}')
+            while True:
+                print(f'{YELLOW}УКАЖИ ПУТЬ К far: {RESET}')
+                far = str(input())
+                if far is not None:
+                    break
+                else:
+                    print(f'{RED}Путь к фар не был указан!{RESET}')
+
+            with open(file, 'w', encoding='windows-1251') as f:
+                tunings = {
+                    'color': {
+                        'bright': f'{color}', 'info': 'Яркость меню, 1 ярче, 0 темнее'
+                    },
+                    'remote': {
+                        'remote': f'{remote}', 'info': 'Локально установлена чекалка или через персей'
+                    },
+                    'password': {
+                        'password': f'{password}', 'info': 'Локально установлена чекалка или через персей'
+                    },
+                    'FOLDER_FOR_CHECK': {
+                        'path': r'\\pumba\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS',
+                        'info': 'Путь куда будет копироваться каталог для проверки чекалкой'
+                    },
+                    'FOLDER_FOR_DISTR': {
+                        'path': r'\\pumba\BFT\СХЕМЫ\DISTRIB\57_DISTR_IBS',
+                        'info': 'Путь к папке с дистрибутивом'
+                    },
+                    'PATH_REQUIREMENTS': {
+                        'path_requirements': r'\\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\ГГГГ_ММ_ММ\НОМЕР_ФАМИЛИЯ',
+                        'info': 'Как должен выглядеть путь к выкладываемому каталогу, эта надпись выводится на экран'
+                    },
+                    'PATH_EXAMPLE': {
+                        'path': r'\\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\2019_08_14\01_ivanov',
+                        'info': 'Образец как должен выглядеть путь к выкладываемому каталогу, надпись выводится на экран'
+                    },
+                    'DATABASE': {
+                        'database': 'ibs/ibs@ATM_SBDEV',
+                        'info': 'Указывается схема АТМ откуда будет тянуться описание заявки'
+                    },
+                    'CHECK_CONTENT_REGEX': {
+                        'ibsobj.mdb': r'(ibsobj\d{0,2}?\.mdb)', 
+                        'info1': 'Регулярка для ibsobj.mdb',
+                        
+                        'ibsobj.pck': r'(ibsobj\d{0,2}?\.pck)', 
+                        'info2': 'Регулярка для ibsobj.pck',
+                        
+                        'delete.pck': r'(delete\d{0,2}?\.pck)', 
+                        'info3': 'Регулярка для delete.pck',
+                        
+                        'conv_instruction': r'(Ин.*я\sпо\sу.*е\.txt)',
+                        'info4': 'Регулярка для Инструкция по установке.txt',
+                        
+                        'conv_description': r'(О.*е\sо.*й\sк.*и\.xls[x]?)',
+                        'info5': 'Регулярка дляОписание операций конвертации.xls',
+                        
+                        'reports_folder': r'(REPORT[S]?)', 
+                        'info6': 'Регулярка для REPORTS',
+                        
+                        'scripts_folder': r'(SCRIPT[S]?)', 
+                        'info7': 'Регулярка для SCRIPTS',
+                        
+                        'data_folder': r'(DATA)', 
+                        'info8': 'Регулярка для DATA',
+                        
+                        'bat_file': r'(dr\.bat)', 
+                        'info9': 'Регулярка для dr.bat',
+                        
+                        'readme': r'(.*r.*me\.txt)', 
+                        'info10': 'Регулярка для readme.txt',
+                        
+                        'new_opportunities': r'(.*н.*е\sво.*ти.*\.doc[x]?)',
+                        'info11': 'Регулярка для Новые возможности.doc',
+                        
+                        'new_extensions': r'(.*н.*е\sра.*я.*\.xls[x]?)',
+                        'info12': 'Регулярка для Новые расширения.xls',
+                        
+                        'classification': r'(.*кл.*я\sсп.*в.*\.xls[x]?)',
+                        'info13': 'Регулярка для Классификация справочников.xls',
+                        
+                        'bat': r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)',
+                        'info14': 'Регулярка для del_old_reps_YYYYMMDD.bat',
+                        
+                        'task_num': r'RP\d{7}', 
+                        'info15': 'Регулярка для поиска номера заявки',
+                        
+                        'check_path': r'\\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+',
+                        'info16': 'Регулярка для проверки пути к каталогу',
+                                            }
+                }
+                f.write(json.dumps(tunings, indent=2, ensure_ascii=False))
 
 
-# Опрос и формирование файла настроек
-def precondition():
-    try:  # Пытаемся считать настройки если они есть
-        read_settings()
-    except FileNotFoundError:  # Если настроек нет Формируем файл конфигурации
-        print(f'''{YELLOW}СЕЙЧАС БУДЕМ ПРОВОДИТЬ ПРЕДВАРИТЕЛЬНУЮ НАСТРОЙКУ,
-НАСТРОЙКИ ВСЕГДА МОЖНО ИЗМЕНИТЬ В ФАЙЛЕ MY_TUNING.TXT{RESET}\n''')
-        os.system("pause")
-        while True:
-            print(f'{YELLOW}ЯРКОСТЬ ТЕМНЕЕ, ЯРЧЕ? 1-без изменений, 0-темнее: {RESET}')
-            COLOR = str(input())
-            if COLOR == '1' or COLOR == '0':
-                break
-        while True:
-            print(f'{YELLOW}ЗАПУСКАЕШЬ FAR ЧЕРЕЗ ПЕРСЕЙ? 1-да, 0-нет: {RESET}')
-            REMOTE = str(input())
-            if REMOTE == '1' or REMOTE == '0':
-                break
-        while True:
-            print(f'{YELLOW}УКАЖИ ПУТЬ К FAR: {RESET}')
-            FAR = str(input())
-            if FAR:
-                break
-        while True:
-            print(f'{YELLOW}ПАРОЛЬ К УЧЕТНОЙ ЗАПИСИ: {RESET}')
-            PASSWORD = str(input())
-            if PASSWORD:
-                break
-        with open(file, 'w', encoding='windows-1251') as write_settings:
-            write_settings.write(
-                f'COLOR= {COLOR}\n'
-                f'REMOTE= {REMOTE}\n'
-                f'FAR= {FAR}\n'
-                f'PASSWORD= {PASSWORD}\n'
-                r'DESTINATION_FOLDER_FOR_CHECK= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS'+'\n'
-                r'DESTINATION_FOLDER_FOR_DISTR= \\pumba\BFT\СХЕМЫ\DISTRIB\57_DISTR_IBS'+'\n'
-                r'PATH_REQUIREMENTS= \\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\ГГГГ_ММ_ММ\НОМЕР_ФАМИЛИЯ'+'\n'
-                r'PATH_EXAMPLE= \\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\2019_08_14\01_ivanov'+'\n'
-                'DATABASE= ibs/ibs@ATM_SBDEV\n'
-                r'CHECK_CONTENT_REGEX= (ibsobj\d{0,2}?\.mdb)|'                    # ibsobj.mdb
-                r'(ibsobj\d{0,2}?\.pck)|'                                         # ibsobj.pck
-                r'(delete\d{0,2}?\.pck)|'                                         # delete.pck
-                r'(Ин.*я\sпо\sу.*е\.txt)|'                                        # Инструкция по установке.txt
-                r'(О.*е\sо.*й\sк.*и\.xls[x]?)|'                                   # Описание операций конвертации.xls
-                r'(REPORT[S]?)|'                                                  # REPORTS
-                r'(SCRIPT[S]?)|'                                                  # SCRIPTS
-                r'(DATA)|'                                                        # DATA
-                r'(dr\.bat)|'                                                     # dr.bat
-                r'(.*r.*me\.txt)|'                                                # readme.txt 
-                r'(.*н.*е\sво.*ти.*\.doc[x]?)|'                                   # Новые возможности.doc
-                r'(.*н.*е\sра.*я.*\.xls[x]?)|'                                    # Новые расширения.xls
-                r'(.*кл.*я\sсп.*в.*\.xls[x]?)|'                                   # Классификация справочников.xls
-                r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)'+'\n'  # del_old_reps_YYYYMMDD.bat
-                r'NUMBER_REQUEST_REGEX= RP\d{7}'+'\n'                             # Номер заявки RP{7 цифр}
-                r'CHECK_SOURCE_FOLDER_PATH_REGEX= \\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+'
-                )
-    return read_settings()
+#settings = read_settings(file)
+
+#check_regex = '|'.join(list(settings['CHECK_CONTENT_REGEX'].values())[::2][:-2])
+#print(check_regex)
