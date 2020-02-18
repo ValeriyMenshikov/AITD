@@ -10,8 +10,6 @@ GREEN = Fore.LIGHTGREEN_EX
 YELLOW = Fore.LIGHTYELLOW_EX
 RESET = Style.RESET_ALL
 
-file = 'my_tuning.json'
-
 
 def read_settings(file):
     while True:
@@ -53,14 +51,18 @@ def read_settings(file):
 
             with open(file, 'w', encoding='windows-1251') as f:
                 tunings = {
-                    'color': {
+                    'COLOR': {
                         'bright': f'{color}', 'info': 'Яркость меню, 1 ярче, 0 темнее'
                     },
-                    'remote': {
+                    'REMOTE': {
                         'remote': f'{remote}', 'info': 'Локально установлена чекалка или через персей'
                     },
-                    'password': {
+                    'PASSWORD': {
                         'password': f'{password}', 'info': 'Локально установлена чекалка или через персей'
+                    },
+                    'FAR': {
+                        'path': f'{far}',
+                        'info': 'Сдесь необходимо указать путь к FAR'
                     },
                     'FOLDER_FOR_CHECK': {
                         'path': r'\\pumba\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\DISTRIB\57_DISTR_IBS',
@@ -71,7 +73,7 @@ def read_settings(file):
                         'info': 'Путь к папке с дистрибутивом'
                     },
                     'PATH_REQUIREMENTS': {
-                        'path_requirements': r'\\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\ГГГГ_ММ_ММ\НОМЕР_ФАМИЛИЯ',
+                        'path': r'\\PUMBA\BFT\СХЕМЫ\DISTRIB\57_DEV_IBS\REPS\ГГГГ_ММ_ММ\НОМЕР_ФАМИЛИЯ',
                         'info': 'Как должен выглядеть путь к выкладываемому каталогу, эта надпись выводится на экран'
                     },
                     'PATH_EXAMPLE': {
@@ -79,63 +81,59 @@ def read_settings(file):
                         'info': 'Образец как должен выглядеть путь к выкладываемому каталогу, надпись выводится на экран'
                     },
                     'DATABASE': {
-                        'database': 'ibs/ibs@ATM_SBDEV',
+                        'database': 'ibs/ibs@57_DEV',
                         'info': 'Указывается схема АТМ откуда будет тянуться описание заявки'
                     },
                     'CHECK_CONTENT_REGEX': {
-                        'ibsobj.mdb': r'(ibsobj\d{0,2}?\.mdb)', 
+                        'ibsobj.mdb': r'(ibsobj\d{0,2}?\.mdb)',
                         'info1': 'Регулярка для ibsobj.mdb',
-                        
-                        'ibsobj.pck': r'(ibsobj\d{0,2}?\.pck)', 
+
+                        'ibsobj.pck': r'(ibsobj\d{0,2}?\.pck)',
                         'info2': 'Регулярка для ibsobj.pck',
-                        
-                        'delete.pck': r'(delete\d{0,2}?\.pck)', 
+
+                        'delete.pck': r'(delete\d{0,2}?\.pck)',
                         'info3': 'Регулярка для delete.pck',
-                        
+
                         'conv_instruction': r'(Ин.*я\sпо\sу.*е\.txt)',
                         'info4': 'Регулярка для Инструкция по установке.txt',
-                        
+
                         'conv_description': r'(О.*е\sо.*й\sк.*и\.xls[x]?)',
-                        'info5': 'Регулярка дляОписание операций конвертации.xls',
-                        
-                        'reports_folder': r'(REPORT[S]?)', 
+                        'info5': 'Регулярка для Описание операций конвертации.xls',
+
+                        'reports_folder': r'(REPORT[S]?)',
                         'info6': 'Регулярка для REPORTS',
-                        
-                        'scripts_folder': r'(SCRIPT[S]?)', 
+
+                        'scripts_folder': r'(SCRIPT[S]?)',
                         'info7': 'Регулярка для SCRIPTS',
-                        
-                        'data_folder': r'(DATA)', 
+
+                        'data_folder': r'(DATA)',
                         'info8': 'Регулярка для DATA',
-                        
-                        'bat_file': r'(dr\.bat)', 
+
+                        'bat_file': r'(dr\.bat)',
                         'info9': 'Регулярка для dr.bat',
-                        
-                        'readme': r'(.*r.*me\.txt)', 
+
+                        'readme': r'(.*r.*me\.txt)',
                         'info10': 'Регулярка для readme.txt',
-                        
+
                         'new_opportunities': r'(.*н.*е\sво.*ти.*\.doc[x]?)',
                         'info11': 'Регулярка для Новые возможности.doc',
-                        
+
                         'new_extensions': r'(.*н.*е\sра.*я.*\.xls[x]?)',
                         'info12': 'Регулярка для Новые расширения.xls',
-                        
+
                         'classification': r'(.*кл.*я\sсп.*в.*\.xls[x]?)',
                         'info13': 'Регулярка для Классификация справочников.xls',
-                        
+
                         'bat': r'([\'|\"]?del[_|\s]old[_|\s]reps[_|\s]\d{8}[\'|\"]?\.bat)',
                         'info14': 'Регулярка для del_old_reps_YYYYMMDD.bat',
-                        
-                        'task_num': r'RP\d{7}', 
-                        'info15': 'Регулярка для поиска номера заявки',
-                        
-                        'check_path': r'\\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+',
-                        'info16': 'Регулярка для проверки пути к каталогу',
-                                            }
+                    },
+                    'TASK_NUM_REGEX': {
+                        'regex': r'RP\d{7}',
+                        'info': 'Регулярка для поиска номера заявки',
+                    },
+                    'CHECK_PATH_REGEX': {
+                        'regex': r'\\\\pumba\\bft\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\\d{4}_\d{2}_\d{2}\\\d{2}_[a-zA-Z]+',
+                        'info': 'Регулярка для проверки пути к каталогу',
+                    }
                 }
                 f.write(json.dumps(tunings, indent=2, ensure_ascii=False))
-
-
-#settings = read_settings(file)
-
-#check_regex = '|'.join(list(settings['CHECK_CONTENT_REGEX'].values())[::2][:-2])
-#print(check_regex)
