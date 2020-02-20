@@ -325,16 +325,13 @@ def easy_check(msg):
 def check_with_checker(msg, check_regex, source_folder, destination_folder):
     while True:
         print(msg)
-        # check = input('Y\\N: ')
         if input('Y\\N: ') in ['N', 'n', 'Т', 'т']:
             print(f'{YELLOW}СКОПИРОВАТЬ КАТАЛОГ ПОВТОРНО?{RESET}')
-            # yesno = input('Y\\N: ')
             if input('Y\\N: ') in ['N', 'n', 'Т', 'т']:
                 continue
             else:
                 delete_trash(check_regex, destination_folder)  # Удаляем старый лог и лишние файлы
                 copy_all_or_not(source_folder, destination_folder, check_regex, 1)
-                # copy_files(source_folder, destination_folder, check_regex)  # Копируем файлы заново
                 print(f'{GREEN}ФАЙЛЫ УСПЕШНО СКОПИРОВАНЫ!{RESET}')
                 show_folder_contents(destination_folder)  # Просматриваем содержимое
                 search_far_and_start(destination_folder)  # Запускаем чекалку в уже запущенном FAR
