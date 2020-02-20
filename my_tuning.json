@@ -1,0 +1,76 @@
+{
+  "COLOR": {
+    "bright": "1",
+    "info": "Яркость меню, 1 ярче, 0 темнее"
+  },
+  "REMOTE": {
+    "remote": "1",
+    "info": "Локально установлена чекалка или через персей"
+  },
+  "PASSWORD": {
+    "password": "Mt-3932558",
+    "info": "Локально установлена чекалка или через персей"
+  },
+  "FAR": {
+    "path": "%systemroot%\\system32\\mstsc.exe \"C:\\Users\\vmenshikov\\AppData\\Roaming\\Microsoft\\Workspaces\\{3DE6876A-2E0E-41E4-80FC-E5435E16D5F5}\\Resource\\Far 3.exe (Remote Desktop Services Default Connection).rdp\"",
+    "info": "Сдесь необходимо указать путь к FAR"
+  },
+  "FOLDER_FOR_CHECK": {
+    "path": "\\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\DISTRIB\\57_DISTR_IBS",
+    "info": "Путь куда будет копироваться каталог для проверки чекалкой"
+  },
+  "FOLDER_FOR_DISTR": {
+    "path": "\\\\pumba\\BFT\\СХЕМЫ\\DISTRIB\\57_DISTR_IBS",
+    "info": "Путь к папке с дистрибутивом"
+  },
+  "PATH_REQUIREMENTS": {
+    "path": "\\\\PUMBA\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\ГГГГ_ММ_ММ\\НОМЕР_ФАМИЛИЯ",
+    "info": "Как должен выглядеть путь к выкладываемому каталогу, эта надпись выводится на экран"
+  },
+  "PATH_EXAMPLE": {
+    "path": "\\\\PUMBA\\BFT\\СХЕМЫ\\DISTRIB\\57_DEV_IBS\\REPS\\2019_08_14\\01_ivanov",
+    "info": "Образец как должен выглядеть путь к выкладываемому каталогу, надпись выводится на экран"
+  },
+  "DATABASE": {
+    "database": "ibs/ibs@57_DEV",
+    "info": "Указывается схема АТМ откуда будет тянуться описание заявки"
+  },
+  "CHECK_CONTENT_REGEX": {
+    "ibsobj.mdb": "(ibsobj\\d{0,2}?\\.mdb)",
+    "info1": "Регулярка для ibsobj.mdb",
+    "ibsobj.pck": "(ibsobj\\d{0,2}?\\.pck)",
+    "info2": "Регулярка для ibsobj.pck",
+    "delete.pck": "(delete\\d{0,2}?\\.pck)",
+    "info3": "Регулярка для delete.pck",
+    "conv_instruction": "(Ин.*я\\sпо\\sу.*е\\.txt)",
+    "info4": "Регулярка для Инструкция по установке.txt",
+    "conv_description": "(О.*е\\sо.*й\\sк.*и\\.xls[x]?)",
+    "info5": "Регулярка для Описание операций конвертации.xls",
+    "reports_folder": "(REPORT[S]?)",
+    "info6": "Регулярка для REPORTS",
+    "scripts_folder": "(SCRIPT[S]?)",
+    "info7": "Регулярка для SCRIPTS",
+    "data_folder": "(DATA)",
+    "info8": "Регулярка для DATA",
+    "bat_file": "(dr\\.bat)",
+    "info9": "Регулярка для dr.bat",
+    "readme": "(.*r.*me\\.txt)",
+    "info10": "Регулярка для readme.txt",
+    "new_opportunities": "(.*н.*е\\sво.*ти.*\\.doc[x]?)",
+    "info11": "Регулярка для Новые возможности.doc",
+    "new_extensions": "(.*н.*е\\sра.*я.*\\.xls[x]?)",
+    "info12": "Регулярка для Новые расширения.xls",
+    "classification": "(.*кл.*я\\sсп.*в.*\\.xls[x]?)",
+    "info13": "Регулярка для Классификация справочников.xls",
+    "bat": "([\\'|\\\"]?del[_|\\s]old[_|\\s]reps[_|\\s]\\d{8}[\\'|\\\"]?\\.bat)",
+    "info14": "Регулярка для del_old_reps_YYYYMMDD.bat"
+  },
+  "TASK_NUM_REGEX": {
+    "regex": "RP\\d{7}",
+    "info": "Регулярка для поиска номера заявки"
+  },
+  "CHECK_PATH_REGEX": {
+    "regex": "\\\\\\\\pumba\\\\bft\\\\СХЕМЫ\\\\DISTRIB\\\\57_DEV_IBS\\\\REPS\\\\\\d{4}_\\d{2}_\\d{2}\\\\\\d{2}_[a-zA-Z]+",
+    "info": "Регулярка для проверки пути к каталогу"
+  }
+}
